@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
@@ -197,8 +198,23 @@ public class Clock extends View {
     private void drawHoursValues(Canvas canvas) {
         // Default Color:
         // - hoursValuesColor
-
-
+        Paint hour = new Paint();
+        hour.setColor(hoursValuesColor);
+        hour.setTextSize(64);
+        hour.setStyle(Paint.Style.FILL);
+        hour.setTextAlign(Paint.Align.CENTER);
+        int rText = mCenterX - (int) (mWidth * 0.15f);
+        for (int i = 0; i < 12; i ++) {
+            int centerX = (int) (mCenterX + rText * Math.sin(Math.toRadians(i * 30)));
+            int centerY = (int) (mCenterX - rText * Math.cos(Math.toRadians(i * 30)));
+            Rect rect = new Rect();
+            String text;
+            int num = i;
+            if (num == 0) num = 12;
+            text = num + "";
+            hour.getTextBounds(text, 0, text.length(), rect);
+            canvas.drawText(text, centerX, centerY + rect.height() / 2, hour);
+        }
     }
 
     /**
@@ -212,7 +228,35 @@ public class Clock extends View {
         // - secondsNeedleColor
         // - hoursNeedleColor
         // - minutesNeedleColor
+        Paint needle = new Paint();
+        needle.setColor(hoursValuesColor);
+        needle.setStyle(Paint.Style.FILL);
+        needle.setStrokeWidth(mWidth*0.02f);
+        needle.setStrokeCap(Paint.Cap.ROUND);
 
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR);
+        int minute = calendar.get(Calendar.MINUTE);
+        int second = calendar.get(Calendar.SECOND);
+
+        int rHour = mCenterX - (int) (mWidth * 0.35f);
+        int rMinute = mCenterX - (int) (mWidth * 0.30f);
+        int rSecond = mCenterX - (int) (mWidth * 0.25f);
+
+        int hourX = (int) (mCenterX + rHour * Math.sin(Math.toRadians(hour*30+minute*0.5+(float)second/60*0.5)));
+        int hourY = (int) (mCenterY - rHour * Math.cos(Math.toRadians(hour*30+minute*0.5+second/60*0.5)));
+        int minuteX = (int) (mCenterX + rMinute * Math.sin(Math.toRadians(minute*6+second*0.1)));
+        int minuteY = (int) (mCenterY - rMinute * Math.cos(Math.toRadians(minute*6+second*0.1)));
+        int secondX = (int) (mCenterX + rSecond * Math.sin(Math.toRadians(second*6)));
+        int secondY = (int) (mCenterY - rSecond * Math.cos(Math.toRadians(second*6)));
+
+        canvas.drawLine(mCenterX, mCenterY, hourX, hourY, needle);
+        needle.setStrokeWidth(mWidth*0.015f);
+        needle.setColor(minutesNeedleColor);
+        canvas.drawLine(mCenterX, mCenterY, minuteX, minuteY, needle);
+        needle.setStrokeWidth(mWidth*0.010f);
+        needle.setColor(secondsNeedleColor);
+        canvas.drawLine(mCenterX, mCenterY, secondX, secondY, needle);
     }
 
     /**
@@ -224,7 +268,12 @@ public class Clock extends View {
         // Default Color:
         // - centerInnerColor
         // - centerOuterColor
-
+        Paint center = new Paint();
+        center.setColor(centerOuterColor);
+        center.setStyle(Paint.Style.FILL);
+        canvas.drawCircle(mCenterX, mCenterY, mWidth*0.02f, center);
+        center.setColor(centerInnerColor);
+        canvas.drawCircle(mCenterX, mCenterY, mWidth*0.015f, center);
     }
 
     public void setShowAnalog(boolean showAnalog) {

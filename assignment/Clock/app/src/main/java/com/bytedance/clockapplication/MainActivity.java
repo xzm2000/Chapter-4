@@ -1,6 +1,7 @@
 package com.bytedance.clockapplication;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
@@ -23,6 +24,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mClockView.setShowAnalog(!mClockView.isShowAnalog());
+            }
+        });
+        final Handler mHandler = new Handler();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mClockView.setShowAnalog(mClockView.isShowAnalog());
+                mHandler.postDelayed(this,1000);
             }
         });
 
